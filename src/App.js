@@ -1,94 +1,55 @@
-// src/Signup.js
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import axios from 'axios';
 
-const Signup = () => {
-  const [userData, setUserData] = useState({
-    username: '',
-    email: '',
-    password: '',
-  });
+function App() {
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [message, setMessage] = useState('');
 
-  const [error, setError] = useState('');
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData({ ...userData, [name]: value });
+  const handleChange = e => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-
-    // Basic validation
-    if (!userData.username || !userData.email || !userData.password) {
-      setError('Please fill all the fields');
-      return;
-    }
-
     try {
-      const response = await axios.post('http://localhost:5000/signup', userData);
-      if (response.status === 200) {
-        alert('Signup Successful!');
-        setUserData({ username: '', email: '', password: '' });
-        setError('');
-      }
+      const res = await axios.post('http://localhost:5000/api/signup', form);
+      setMessage(res.data.message);
     } catch (err) {
-      setError('Error signing up. Please try again.');
+      setMessage(err.response?.data?.error || 'Signup failed');
     }
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: 5,
-        }}
-      >
-        <Typography variant="h4" gutterBottom>
-          Sign Up
-        </Typography>
-        {error && <Typography color="error">{error}</Typography>}
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          <TextField
-            label="Username"
-            variant="outlined"
-            fullWidth
-            name="username"
-            value={userData.username}
-            onChange={handleChange}
-            margin="normal"
-          />
-          <TextField
-            label="Email"
-            variant="outlined"
-            fullWidth
-            name="email"
-            value={userData.email}
-            onChange={handleChange}
-            margin="normal"
-          />
-          <TextField
-            label="Password"
-            variant="outlined"
-            fullWidth
-            type="password"
-            name="password"
-            value={userData.password}
-            onChange={handleChange}
-            margin="normal"
-          />
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ marginTop: 2 }}>
-            Sign Up
-          </Button>
-        </form>
-      </Box>
-    </Container>
+    <div style={{ maxWidth: 400, margin: "40px auto" }}>
+      <h2>Signup</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Name"
+          required
+        /><br /><br />
+        <input
+          name="email"
+          value={form.email}
+          onChange={handleChange}
+          placeholder="Email"
+          required
+        /><br /><br />
+        <input
+          name="password"
+          type="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder="Password"
+          required
+        /><br /><br />
+        <button type="submit">Sign Up</button>
+      </form>
+      <div style={{ marginTop: 20, color: "red" }}>{message}</div>
+    </div>
   );
-};
+}
 
-export default Signup;
+export default App;
